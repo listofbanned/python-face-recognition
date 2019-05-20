@@ -1,0 +1,44 @@
+# imports
+import cv2
+import face_recognition
+import pickle
+import os
+
+image_path = "image/" + str(os.listdir("image")[0])
+
+# load the known faces and embeddings
+data = pickle.loads(open("encoding/dataset_encoding.pickle", "rb").read())
+names = []
+
+image = cv2.imread(image_path)
+rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+print("Processing...")
+boxes = face_recognition.face_locations(rgb)
+encodings = face_recognition.face_encodings(rgb, boxes)
+
+# loop over the facial embeddings
+for encoding in encodings:
+	matches = face_recognition.compare_faces(data["encodings"], encoding)
+	name = "unknown"
+
+	if True in matches:
+		matchesid = [i for (i, b) in enumerate(matches) if b]
+		counts = {}
+
+		for i in matchesid:
+			name = data["names"][i]
+			counts[name] = counts.get(name, 0) + 1
+
+		name = max(counts, key = counts.get)
+
+	names.append(name)
+
+# loop over the recognized faces
+for ((top, right, bottom, left), name) in zip(boxes, names):
+	cv2.rectangle(image, (left, top), (right, bottom), (0, 0, 255), 2)
+	y = top - 15 if top - 15 > 15 else top + 15
+	cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
