@@ -3,6 +3,7 @@ import time
 import cv2
 import os
 import argparse
+import training
 
 # data
 name = "dataset/" + input("Put a name: ")
@@ -13,7 +14,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-u", "--url", required = True)
 args = vars(ap.parse_args())
 
-# I use 5 images captured to start the training
+# captured images to start the training
 examples_amount = 180
 
 # and then
@@ -37,4 +38,4 @@ while True:
 print("Starting training")
 
 # training
-import training
+training.Training()
